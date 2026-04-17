@@ -1,4 +1,5 @@
 import pathlib
+from copy import deepcopy
 from typing import Any, List, Optional, ClassVar
 
 from pydantic import Field
@@ -23,13 +24,14 @@ class ConfiguredJob(Job):
 
     _configuration: ClassVar[dict] = {}
 
-    def __init__(__pydantic_self__, **data: Any) -> None:  # lgtm[py/not-named-self]
+    def __init__(self, **data: Any) -> None:
         obj = Job(**data)
-        objdct = obj.model_dump()
-        for option_name, option_config in __pydantic_self__._configuration.items():
+        objdct = {field: deepcopy(getattr(obj, field)) for field in obj.model_fields}
+        for option_name, option_config in self._configuration.items():
             prefix = option_name.split("_")[0] + "_"
             for field in objdct.keys():
                 if field.startswith(prefix):
+                    objdct[field] = objdct[field].model_dump()
                     for name, value in option_config.items():
                         update_dictionary(objdct[field], name, value)
         super().__init__(**objdct)

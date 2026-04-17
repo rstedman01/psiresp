@@ -2,7 +2,7 @@ from copy import deepcopy
 import time
 import pathlib
 import logging
-from typing import List, Optional, Dict, Any, Union, Literal
+from typing import List, Optional, Dict, Any, Union, Literal, ClassVar
 
 import numpy as np
 import qcelemental as qcel
@@ -88,6 +88,7 @@ class PCMOptions(Model):
 
 class BaseQMOptions(Model):
     """Base class for QM computations"""
+    jobname: ClassVar[str] = ""
     method: QMMethod = Field(
         default="hf",
         description="QM method for optimizing geometry and calculating ESPs",
@@ -376,7 +377,7 @@ class BaseQMOptions(Model):
 
 class QMGeometryOptimizationOptions(BaseQMOptions):
 
-    jobname = "optimization"
+    jobname: ClassVar[str] = "optimization"
 
     g_convergence: QMGConvergence = Field(
         default="gau_tight",
@@ -439,7 +440,7 @@ class QMGeometryOptimizationOptions(BaseQMOptions):
 
 
 class QMEnergyOptions(BaseQMOptions):
-    jobname = "single_point"
+    jobname: ClassVar[str] = "single_point"
 
     def wait_for_results(self, client, response_ids=[]):
         results = wait(client, response_ids=response_ids,

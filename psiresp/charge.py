@@ -478,7 +478,7 @@ class MoleculeChargeConstraints(BaseChargeConstraintOptions):
                                  for a in unconstrained_atoms]
 
         indices = np.arange(self.n_atoms)
-        to_constrain = np.where(~np.in1d(indices, unconstrained_indices))[0]
+        to_constrain = np.where(~np.isin(indices, unconstrained_indices))[0]
 
         charges = np.asarray(charges)[to_constrain]
         indices = indices[to_constrain]

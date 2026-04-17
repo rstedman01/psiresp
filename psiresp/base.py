@@ -36,16 +36,14 @@ class Model(BaseModel):
     def _clsname(self):
         return type(self).__name__
 
-    def __init__(__pydantic_self__, **data: Any) -> None:  # lgtm[py/not-named-self]
-        __pydantic_self__.__pre_init__(**data)  # lgtm[py/init-calls-subclass]
-        super().__init__(**data)
-        __pydantic_self__.__post_init__(**data)  # lgtm[py/init-calls-subclass]
-
     def __pre_init__(self, **kwargs):
         pass
 
     def __post_init__(self, **kwargs):
         pass
+
+    def model_post_init(self, __context: Any) -> None:
+        self.__post_init__()
 
     def __setattr__(self, attr, value):
         try:
@@ -58,8 +56,15 @@ class Model(BaseModel):
             raise e
 
     def get_hash(self):
+        def _fallback(value):
+            if hasattr(value, "model_dump"):
+                return value.model_dump()
+            if hasattr(value, "dict"):
+                return value.dict()
+            return str(value)
+
         mash = hashlib.sha1()
-        mash.update(self.model_dump_json().encode("utf-8"))
+        mash.update(self.model_dump_json(fallback=_fallback).encode("utf-8"))
         return mash.hexdigest()
 
     def __hash__(self):

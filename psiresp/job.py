@@ -286,6 +286,7 @@ class Job(base.Model):
 
         if self.resp_options.stage_2:
             stage_2_constraints = stage_1_constraints.model_copy(deep=True)
+            stage_2_constraints._generate_molecule_increments()
             stage_2_constraints.constrain_methyl_hydrogens_between_conformers = True
             stage_1_constraints.prepare_stage_1_constraints()
         else:
