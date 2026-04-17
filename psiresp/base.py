@@ -1,5 +1,6 @@
 import inspect
 import hashlib
+import json
 from typing import Any
 
 import numpy as np
@@ -57,10 +58,10 @@ class Model(BaseModel):
 
     def get_hash(self):
         def _fallback(value):
-            if hasattr(value, "model_dump"):
-                return value.model_dump()
-            if hasattr(value, "dict"):
-                return value.dict()
+            if hasattr(value, "model_dump_json"):
+                return json.loads(value.model_dump_json())
+            if hasattr(value, "json"):
+                return json.loads(value.json())
             return str(value)
 
         mash = hashlib.sha1()
