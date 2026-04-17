@@ -2,7 +2,7 @@ from typing import Optional
 import warnings
 
 import numpy as np
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from . import base, charge
 from .constraint import (ESPSurfaceConstraintMatrix,
@@ -45,7 +45,7 @@ class RespOptions(BaseRespOptions):
 
     @property
     def _base_kwargs(self):
-        return {k: getattr(self, k) for k in BaseRespOptions.__fields__}
+        return {k: getattr(self, k) for k in BaseRespOptions.model_fields}
 
 
 class RespCharges(BaseRespOptions):
@@ -53,9 +53,9 @@ class RespCharges(BaseRespOptions):
     restraint_height: float = Field(default=0.0005,
                                     description="scale factor of asymptote limits of hyperbola")
 
-    _restrained_charges: Optional[np.ndarray] = None
-    _unrestrained_charges: Optional[np.ndarray] = None
-    _matrix: Optional[SparseGlobalConstraintMatrix] = None
+    _restrained_charges: Optional[np.ndarray] = PrivateAttr(default=None)
+    _unrestrained_charges: Optional[np.ndarray] = PrivateAttr(default=None)
+    _matrix: Optional[SparseGlobalConstraintMatrix] = PrivateAttr(default=None)
 
     charge_constraints: charge.MoleculeChargeConstraints
     surface_constraints: ESPSurfaceConstraintMatrix

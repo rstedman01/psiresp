@@ -10,11 +10,11 @@ dependencies:
   - pip
 
   # qcstack
-  - qcelemental == 0.22.0
+  - qcelemental>=0.26
 
   # deps
   - numpy
-  - scipy >= 1.4
+  - scipy >= 1.9
   - tqdm
 
   # testing
@@ -25,5 +25,4 @@ dependencies:
 
   # Pip-only installs
   - pip:
-      - importlib_resources
-      - msgpack-python
+      - msgpack>=1.0

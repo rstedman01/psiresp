@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 import copy
 
 import numpy as np
-from pydantic import validator
+from pydantic import field_validator
 import scipy.sparse
 import scipy.sparse.linalg
 
@@ -48,8 +48,9 @@ class ESPSurfaceConstraintMatrix(base.Model):
     __imul__ = array_ops(np.ndarray.__imul__)
     __itruediv__ = array_ops(np.ndarray.__itruediv__)
 
-    @validator("matrix", pre=True)
-    def _validate_matrix(v):
+    @field_validator("matrix", mode="before")
+    @classmethod
+    def _validate_matrix(cls, v):
         if v is not None:
             v = np.asarray(v)
         return v

@@ -121,7 +121,7 @@ mkl                       2019.4                      233
 mkl-service               2.3.0            py37h9ed2024_0  
 mmtf-python               1.1.2                    pypi_0    pypi
 more-itertools            8.10.0             pyhd3eb1b0_0  
-msgpack-python            1.0.2            py37hf7b0b51_1  
+msgpack                   1.0.2            py37hf7b0b51_1  
 myst-parser               0.15.2                   pypi_0    pypi
 nbclient                  0.5.3              pyhd3eb1b0_0  
 nbconvert                 6.1.0            py37hecd8cb5_0  

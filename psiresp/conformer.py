@@ -1,6 +1,5 @@
 
-from typing import Optional, List
-from typing_extensions import Literal
+from typing import Optional, List, Literal
 from pydantic import Field
 
 import numpy as np
@@ -77,7 +76,7 @@ class ConformerGenerationOptions(base.Model):
             require_package("rdkit")
             from .rdutils import generate_diverse_conformer_coordinates
 
-            rdkwargs = self.dict()
+            rdkwargs = self.model_dump()
             keep = rdkwargs.pop("keep_original_conformer")
             coords = generate_diverse_conformer_coordinates(qcmol, **rdkwargs)
             if keep:

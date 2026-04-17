@@ -18,19 +18,20 @@ dependencies:
 
   # qcstack
   - postgresql >= 13.0
-  - qcelemental == 0.22
+  - qcelemental>=0.26
   - qcengine
-  - qcfractal == 0.15.6
+  # TODO: evaluate current qcfractal compatibility after Python 3.13 migration.
+  - qcfractal
   - requests
 
   # deps
   - rdkit
   - numpy
-  - scipy >= 1.4
+  - scipy >= 1.9
   - tqdm
 
   # weird mamba mismatch
-  - h5py<3.2
+  - h5py>=3.8
 
   - pytest >= 4.6.4
   - pytest-cov
@@ -39,5 +40,4 @@ dependencies:
   # Pip-only installs
   - pip:
       - duecredit
-      - importlib_resources
-      - msgpack-python
+      - msgpack>=1.0

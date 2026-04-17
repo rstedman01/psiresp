@@ -25,21 +25,18 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest]
-        python-version: [3.7, 3.8, 3.9]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
         codecov: [false]
         runslow: [true]
         environment: [no_qcfractal_test_env]
-        exclude:
-          - os: ubuntu-latest
-            python-version: 3.7
         include:
           - os: ubuntu-latest
-            python-version: 3.7
+            python-version: "3.10"
             environment: test_env
             runslow: true
             codecov: true
           - os: ubuntu-latest
-            python-version: "3.10"
+            python-version: "3.13"
             environment: minimal_test_env
             runslow: true
             codecov: false
@@ -50,7 +47,7 @@ jobs:
       GH_OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: setup_osx
         if: startsWith(matrix.os, 'macOS')
@@ -73,7 +70,7 @@ jobs:
           echo "FC=gfortran" >> $GITHUB_ENV
 
       - name: setup_miniconda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
@@ -93,7 +90,7 @@ jobs:
           conda list
 
       - name: install_psiresp
-        run: python setup.py install
+        run: pip install -e .
 
       - name: run_fast_tests
         if: ${{ matrix.runslow == false }}
@@ -108,7 +105,7 @@ jobs:
           pytest psiresp/tests $PYTEST_FLAGS
         
       - name: codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v4
         if: ${{ matrix.codecov == true }}
         with:
           file: coverage.xml
@@ -119,12 +116,12 @@ jobs:
   build_docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       
       - name: setup_miniconda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.13"
           auto-update-conda: true
           channel-priority: flexible
           add-pip-as-python-dependency: true
@@ -134,8 +131,7 @@ jobs:
           activate-environment: psiresp-docs
 
       - name: install_psiresp
-        run: python setup.py install
+        run: pip install -e .[docs]
       
       - name: build_docs
-        run: |
-          python setup.py build_ext
+        run: pip install -e .[docs]

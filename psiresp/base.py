@@ -1,9 +1,9 @@
 import inspect
 import hashlib
-from typing import Any, Optional, Union, no_type_check
+from typing import Any
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 
 def _is_settable(member):
@@ -26,11 +26,11 @@ class Model(BaseModel):
     """Base class that all classes should subclass.
     """
 
-    class Config:
-        arbitrary_types_allowed = True
-        underscore_attrs_are_private = True
-        validate_assignment = True
-        json_encoders = {np.ndarray: lambda x: x.tolist()}
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        validate_assignment=True,
+        json_encoders={np.ndarray: lambda x: x.tolist()},
+    )
 
     @property
     def _clsname(self):
@@ -50,7 +50,7 @@ class Model(BaseModel):
     def __setattr__(self, attr, value):
         try:
             super().__setattr__(attr, value)
-        except ValueError as e:
+        except (ValueError, ValidationError) as e:
             setters = inspect.getmembers(self.__class__, predicate=_is_settable)
             for propname, _ in setters:
                 if propname == attr:
@@ -59,7 +59,7 @@ class Model(BaseModel):
 
     def get_hash(self):
         mash = hashlib.sha1()
-        mash.update(self.json().encode("utf-8"))
+        mash.update(self.model_dump_json().encode("utf-8"))
         return mash.hexdigest()
 
     def __hash__(self):
@@ -71,21 +71,3 @@ class Model(BaseModel):
         except TypeError:
             other_hash = hash(_to_immutable(other))
         return hash(self) == other_hash
-
-    @classmethod
-    @no_type_check
-    def _get_value(
-        cls,
-        v: Any,
-        to_dict: bool,
-        by_alias: bool,
-        include: Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']],
-        exclude: Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']],
-        exclude_unset: bool,
-        exclude_defaults: bool,
-        exclude_none: bool,
-    ) -> Any:
-
-        if isinstance(v, set):
-            v = list(v)
-        return super()._get_value(v, to_dict, by_alias, include, exclude, exclude_unset, exclude_defaults, exclude_none)

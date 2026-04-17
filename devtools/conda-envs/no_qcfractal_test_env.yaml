@@ -24,11 +24,11 @@ dependencies:
   # deps
   - rdkit
   - numpy
-  - scipy >= 1.4
+  - scipy >= 1.9
   - tqdm
 
   # weird mamba mismatch
-  - h5py<3.2
+  - h5py>=3.8
 
   - pytest >= 4.6.4
   - pytest-cov
@@ -37,5 +37,4 @@ dependencies:
   # Pip-only installs
   - pip:
       - duecredit
-      - importlib_resources
-      - msgpack-python
+      - msgpack>=1.0

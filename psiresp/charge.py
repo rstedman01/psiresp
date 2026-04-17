@@ -4,7 +4,7 @@ from collections import defaultdict
 import warnings
 
 import numpy as np
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from . import base
 from .molecule import Atom, Molecule
@@ -293,12 +293,12 @@ class MoleculeChargeConstraints(BaseChargeConstraintOptions):
     molecules: List[Molecule] = []
     unconstrained_atoms: List[Atom] = []
 
-    _n_atoms: int
-    _n_total_atoms: int
-    _n_conformers: List[int]
-    _n_molecule_atoms: np.ndarray
-    _molecule_increments: Dict[int, List[int]]
-    _edges: List[Tuple[int, int]]
+    _n_atoms: int = PrivateAttr(default=0)
+    _n_total_atoms: int = PrivateAttr(default=0)
+    _n_conformers: List[int] = PrivateAttr(default_factory=list)
+    _n_molecule_atoms: np.ndarray = PrivateAttr(default_factory=lambda: np.array([]))
+    _molecule_increments: Dict[int, List[int]] = PrivateAttr(default_factory=dict)
+    _edges: List[Tuple[int, int]] = PrivateAttr(default_factory=list)
 
     def __post_init__(self, **kwargs):
         super().__post_init__(**kwargs)
@@ -345,10 +345,10 @@ class MoleculeChargeConstraints(BaseChargeConstraintOptions):
     @classmethod
     def from_charge_constraints(cls, charge_constraints, molecules=[]):
         molecule_set = set(molecules)
-        sums = [constr.copy(deep=True)
+        sums = [constr.model_copy(deep=True)
                 for constr in charge_constraints.charge_sum_constraints
                 if constr.molecule_set & molecule_set]
-        eqvs = [constr.copy(deep=True)
+        eqvs = [constr.model_copy(deep=True)
                 for constr in charge_constraints.charge_equivalence_constraints
                 if constr.molecule_set & molecule_set]
 

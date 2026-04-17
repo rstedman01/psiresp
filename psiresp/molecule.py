@@ -3,7 +3,7 @@ import functools
 import logging
 
 import numpy as np
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from . import base, orutils
 from .conformer import Conformer, ConformerGenerationOptions
@@ -95,14 +95,15 @@ class Molecule(BaseMolecule):
                                                   )
     # _atoms: Tuple["Atom"]
 
-    @validator(
+    @field_validator(
         "stage_1_unrestrained_charges",
         "stage_1_restrained_charges",
         "stage_2_unrestrained_charges",
         "stage_2_restrained_charges",
-        pre=True
+        mode="before"
     )
-    def validate_charges(v):
+    @classmethod
+    def validate_charges(cls, v):
         if v is not None:
             v = np.asarray(v)
         return v
@@ -370,5 +371,5 @@ class Atom(base.Model):
         return self.index < other.index
 
 
-Molecule.update_forward_refs()
-Atom.update_forward_refs()
+Molecule.model_rebuild()
+Atom.model_rebuild()

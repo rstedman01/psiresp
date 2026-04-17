@@ -2,10 +2,9 @@ from copy import deepcopy
 import time
 import pathlib
 import logging
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any, Union, Literal
 
 import numpy as np
-from typing_extensions import Literal
 import qcelemental as qcel
 from pydantic import Field, ValidationError
 import tqdm
@@ -294,7 +293,7 @@ class BaseQMOptions(Model):
                 if not result.success:
                     error_data = result.error
                     if error_data:
-                        error_data = result.dict()["error"]
+                        error_data = result.model_dump()["error"]
                         error_message = error_data.get("error_message", error_data)
                         error_type = error_data.get("error_type", "Nonspecific")
                         errors.append(f"{error_type} error for {path}: {error_message}")
