@@ -31,7 +31,10 @@ class ConfiguredJob(Job):
             prefix = option_name.split("_")[0] + "_"
             for field in objdct.keys():
                 if field.startswith(prefix):
-                    objdct[field] = objdct[field].model_dump()
+                    if hasattr(objdct[field], "model_dump"):
+                        objdct[field] = objdct[field].model_dump()
+                    elif not isinstance(objdct[field], dict):
+                        continue
                     for name, value in option_config.items():
                         update_dictionary(objdct[field], name, value)
         super().__init__(**objdct)
