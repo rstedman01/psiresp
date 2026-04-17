@@ -26,7 +26,7 @@ class ConfiguredJob(Job):
     def __init__(self, **data: Any) -> None:
         obj = Job(**data)
         obj_copy = obj.model_copy(deep=True)
-        objdct = {field: getattr(obj_copy, field) for field in obj.model_fields}
+        objdct = {field: getattr(obj_copy, field) for field in obj_copy.model_fields}
         for option_name, option_config in self._configuration.items():
             prefix = option_name.split("_")[0] + "_"
             for field in objdct.keys():
