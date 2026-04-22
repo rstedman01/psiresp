@@ -1,14 +1,25 @@
 import numpy as np
 import qcelemental as qcel
+from pydantic import field_validator
+from typing import Any
 
 from .moleculebase import BaseMolecule
 
 
 class QCWaveFunction(BaseMolecule):
-    qc_wavefunction: qcel.models.results.WavefunctionProperties
+    qc_wavefunction: Any
     n_alpha: int
     energy: float
     basis: str
+
+    @field_validator("qc_wavefunction", mode="before")
+    @classmethod
+    def _validate_qc_wavefunction(cls, value):
+        if isinstance(value, dict):
+            return qcel.models.results.WavefunctionProperties(**value)
+        if isinstance(value, qcel.models.results.WavefunctionProperties):
+            return value
+        raise TypeError(f"Could not construct WavefunctionProperties from {type(value)}")
 
     @classmethod
     def from_atomicresult(cls, result):

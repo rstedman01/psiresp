@@ -1,10 +1,9 @@
 
 import itertools
 import logging
-from typing import TYPE_CHECKING, Set, Tuple, Optional, List
+from typing import TYPE_CHECKING, Set, Tuple, Optional, List, Literal
 import warnings
 
-from typing_extensions import Literal
 import numpy as np
 
 try:

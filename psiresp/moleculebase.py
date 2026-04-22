@@ -1,6 +1,7 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Any
 
 import qcelemental as qcel
+from pydantic import field_validator
 
 from . import base
 from .orutils import generate_atom_combinations
@@ -10,8 +11,17 @@ if TYPE_CHECKING:
 
 
 class BaseMolecule(base.Model):
-    qcmol: qcel.models.Molecule
+    qcmol: Any
     _rdmol: Optional["rdkit.Chem.Mol"] = None
+
+    @field_validator("qcmol", mode="before")
+    @classmethod
+    def _validate_qcmol(cls, value):
+        if isinstance(value, dict):
+            return qcel.models.Molecule(**value)
+        if isinstance(value, qcel.models.Molecule):
+            return value
+        raise TypeError(f"Could not construct qcelemental Molecule from {type(value)}")
 
     def __post_init__(self, **kwargs):
         super().__post_init__(**kwargs)

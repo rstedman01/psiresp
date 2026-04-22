@@ -13,10 +13,11 @@ from .resp import RespOptions, RespCharges
 from .grid import GridOptions
 from .configs import *
 
-from ._version import get_versions
-
-# Handle versioneer
-versions = get_versions()
-__version__ = versions["version"]
-__git_revision__ = versions["full-revisionid"]
-del get_versions, versions
+try:
+    from importlib.metadata import version, PackageNotFoundError
+    try:
+        __version__ = version("psiresp")
+    except PackageNotFoundError:
+        __version__ = "unknown"
+except ImportError:
+    __version__ = "unknown"

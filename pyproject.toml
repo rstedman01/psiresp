@@ -1,3 +1,35 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "psiresp"
+dynamic = ["version"]
+description = "RESP with inter- and intra-molecular constraints in Psi4."
+readme = "README.md"
+license = { text = "LGPLv3" }
+authors = [{ name = "Lily Wang", email = "lily.wang@anu.edu.au" }]
+requires-python = ">=3.9"
+dependencies = [
+    "msgpack>=1.0",
+    "numpy>=1.23",
+    "qcelemental>=0.26",
+    "requests",
+    "scipy>=1.9",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "pytest-xdist",
+]
+docs = []
+
+[tool.hatch.version]
+source = "vcs"
+
 [tool.pytest.ini_options]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",

@@ -29,23 +29,23 @@ class Job(base.Model):
         description="Molecules to use for the RESP job"
     )
     qm_optimization_options: qm.QMGeometryOptimizationOptions = Field(
-        default=qm.QMGeometryOptimizationOptions(),
+        default_factory=qm.QMGeometryOptimizationOptions,
         description="QM options for geometry optimization"
     )
     qm_esp_options: qm.QMEnergyOptions = Field(
-        default=qm.QMEnergyOptions(),
+        default_factory=qm.QMEnergyOptions,
         description="QM options for ESP computation"
     )
     grid_options: grid.GridOptions = Field(
-        default=grid.GridOptions(),
+        default_factory=grid.GridOptions,
         description="Options for generating grid for ESP computation"
     )
     resp_options: resp.RespOptions = Field(
-        default=resp.RespOptions(),
+        default_factory=resp.RespOptions,
         description="Options for fitting ESP for charges"
     )
     charge_constraints: charge.ChargeConstraintOptions = Field(
-        default=charge.ChargeConstraintOptions(),
+        default_factory=charge.ChargeConstraintOptions,
         description="Charge constraints"
     )
 
@@ -285,7 +285,7 @@ class Job(base.Model):
         stage_1_constraints = self.generate_molecule_charge_constraints()
 
         if self.resp_options.stage_2:
-            stage_2_constraints = stage_1_constraints.copy(deep=True)
+            stage_2_constraints = stage_1_constraints.model_copy(deep=True)
             stage_2_constraints.constrain_methyl_hydrogens_between_conformers = True
             stage_1_constraints.prepare_stage_1_constraints()
         else:

@@ -18,7 +18,7 @@ dependencies:
 
   # qcstack
   - postgresql >= 13.0
-  - qcelemental >= 0.22.0
+  - qcelemental>=0.26
   - qcengine
   - qcfractal >= 0.15
   - qcfractal-core
@@ -30,10 +30,9 @@ dependencies:
   - scipy
 
   # weird mamba mismatch
-  - h5py<3.2
+  - h5py>=3.8
 
   # Pip-only installs
   - pip:
       - duecredit
-      - importlib_resources
-      - msgpack-python
+      - msgpack>=1.0

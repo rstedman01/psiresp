@@ -1,4 +1,4 @@
-from typing_extensions import Literal
+from typing import Literal
 
 
 MSK_RADII = {  # from FMOPRP in GAMESS fmoio.src

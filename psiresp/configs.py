@@ -23,13 +23,18 @@ class ConfiguredJob(Job):
 
     _configuration: ClassVar[dict] = {}
 
-    def __init__(__pydantic_self__, **data: Any) -> None:  # lgtm[py/not-named-self]
+    def __init__(self, **data: Any) -> None:
         obj = Job(**data)
-        objdct = obj.dict()
-        for option_name, option_config in __pydantic_self__._configuration.items():
+        obj_copy = obj.model_copy(deep=True)
+        objdct = {field: getattr(obj_copy, field) for field in obj_copy.model_fields}
+        for option_name, option_config in self._configuration.items():
             prefix = option_name.split("_")[0] + "_"
             for field in objdct.keys():
                 if field.startswith(prefix):
+                    if hasattr(objdct[field], "model_dump"):
+                        objdct[field] = objdct[field].model_dump()
+                    elif not isinstance(objdct[field], dict):
+                        continue
                     for name, value in option_config.items():
                         update_dictionary(objdct[field], name, value)
         super().__init__(**objdct)
@@ -171,7 +176,7 @@ class RESP2(base.Model):
         description="Molecules to use for the RESP job"
     )
     solvent_qm_optimization_options: qm.QMGeometryOptimizationOptions = Field(
-        default=qm.QMGeometryOptimizationOptions(
+        default_factory=lambda: qm.QMGeometryOptimizationOptions(
             method="pw6b95",
             basis="aug-cc-pV(D+d)Z",
             pcm_options=qm.PCMOptions(solvent="water")
@@ -179,7 +184,7 @@ class RESP2(base.Model):
         description="QM options for geometry optimization"
     )
     solvent_qm_esp_options: qm.QMEnergyOptions = Field(
-        default=qm.QMEnergyOptions(
+        default_factory=lambda: qm.QMEnergyOptions(
             method="pw6b95",
             basis="aug-cc-pV(D+d)Z",
             pcm_options=qm.PCMOptions(medium_solvent="water")
@@ -187,18 +192,18 @@ class RESP2(base.Model):
         description="QM options for ESP computation"
     )
     grid_options: grid.GridOptions = Field(
-        default=grid.GridOptions(
+        default_factory=lambda: grid.GridOptions(
             use_radii="bondi",
             vdw_point_density=2.5
         ),
         description="Options for generating grid for ESP computation"
     )
     resp_options: resp.RespOptions = Field(
-        default=resp.RespOptions(),
+        default_factory=resp.RespOptions,
         description="Options for fitting ESP for charges"
     )
     charge_constraints: charge.ChargeConstraintOptions = Field(
-        default=charge.ChargeConstraintOptions(),
+        default_factory=charge.ChargeConstraintOptions,
         description="Charge constraints"
     )
 
@@ -230,12 +235,12 @@ class RESP2(base.Model):
 
     def __post_init__(self, **kwargs):
         super().__post_init__(**kwargs)
-        vacuum_opt = self.solvent_qm_optimization_options.copy(deep=True)
+        vacuum_opt = self.solvent_qm_optimization_options.model_copy(deep=True)
         vacuum_opt.pcm_options = None
-        vacuum_esp = self.solvent_qm_esp_options.copy(deep=True)
+        vacuum_esp = self.solvent_qm_esp_options.model_copy(deep=True)
         vacuum_esp.pcm_options = None
 
-        self.vacuum = Job(molecules=[x.copy(deep=True) for x in self.molecules],
+        self.vacuum = Job(molecules=[x.model_copy(deep=True) for x in self.molecules],
                           qm_optimization_options=vacuum_opt,
                           qm_esp_options=vacuum_esp,
                           grid_options=self.grid_options,
@@ -246,7 +251,7 @@ class RESP2(base.Model):
                           n_processes=self.n_processes,
                           working_directory=self.working_directory / "vacuum")
 
-        self.solvated = Job(molecules=[x.copy(deep=True) for x in self.molecules],
+        self.solvated = Job(molecules=[x.model_copy(deep=True) for x in self.molecules],
                             qm_optimization_options=self.solvent_qm_optimization_options,
                             qm_esp_options=self.solvent_qm_esp_options,
                             grid_options=self.grid_options,

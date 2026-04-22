@@ -2,10 +2,9 @@ from copy import deepcopy
 import time
 import pathlib
 import logging
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any, Union, Literal, ClassVar
 
 import numpy as np
-from typing_extensions import Literal
 import qcelemental as qcel
 from pydantic import Field, ValidationError
 import tqdm
@@ -89,6 +88,7 @@ class PCMOptions(Model):
 
 class BaseQMOptions(Model):
     """Base class for QM computations"""
+    jobname: ClassVar[str] = ""
     method: QMMethod = Field(
         default="hf",
         description="QM method for optimizing geometry and calculating ESPs",
@@ -294,7 +294,7 @@ class BaseQMOptions(Model):
                 if not result.success:
                     error_data = result.error
                     if error_data:
-                        error_data = result.dict()["error"]
+                        error_data = result.model_dump()["error"]
                         error_message = error_data.get("error_message", error_data)
                         error_type = error_data.get("error_type", "Nonspecific")
                         errors.append(f"{error_type} error for {path}: {error_message}")
@@ -377,7 +377,7 @@ class BaseQMOptions(Model):
 
 class QMGeometryOptimizationOptions(BaseQMOptions):
 
-    jobname = "optimization"
+    jobname: ClassVar[str] = "optimization"
 
     g_convergence: QMGConvergence = Field(
         default="gau_tight",
@@ -440,7 +440,7 @@ class QMGeometryOptimizationOptions(BaseQMOptions):
 
 
 class QMEnergyOptions(BaseQMOptions):
-    jobname = "single_point"
+    jobname: ClassVar[str] = "single_point"
 
     def wait_for_results(self, client, response_ids=[]):
         results = wait(client, response_ids=response_ids,

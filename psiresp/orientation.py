@@ -1,7 +1,7 @@
 from typing import Optional
 
 import numpy as np
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 import qcelemental as qcel
 
 from .constraint import ESPSurfaceConstraintMatrix
@@ -30,7 +30,8 @@ class Orientation(BaseMolecule):
     _constraint_matrix: Optional[ESPSurfaceConstraintMatrix] = None
     _qc_id: Optional[int] = None
 
-    @validator("grid", "esp", pre=True)
+    @field_validator("grid", "esp", mode="before")
+    @classmethod
     def _convert_array(cls, v):
         if v is not None:
             v = np.asarray(v)
